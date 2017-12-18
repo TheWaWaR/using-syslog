@@ -1,7 +1,25 @@
-# Steps
+# Config Steps
+
+## Config systemd journual
+
+``` bash
+sudo vim /etc/systemd/journald.conf
+
+  RateLimitInterval=30s
+  RateLimitBurst=50000
+  
+sudo systemctl restart systemd-journald
+```
+
 ## Config rsyslog
 
-``` javascript
+``` bash
+sudo vim /etc/rsyncd.conf
+
+  $ModLoad imjournal
+  $imjournalRatelimitInterval 30
+  $imjournalRatelimitBurst 50000
+
 sudo cp rsyslog-local6.conf /etc/rsyslog.d/00-local6-tornado.conf
 sudo systemctl restart rsyslog
 ```
