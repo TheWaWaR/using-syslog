@@ -8,28 +8,6 @@ import logging.handlers
 import tornado.ioloop
 import tornado.web
 
-LOGGING = {
-    'version': 1,
-    'formatters': {
-        'local': {
-            'format': '%(asctime)s %(message)s',
-        }
-    },
-    'handlers': {
-        'syslog': {
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': 'local6',
-            'address': '/dev/log',
-            'formatter': 'local',
-        },
-    },
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['syslog']
-    },
-}
-logging.config.dictConfig(LOGGING)
-
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -38,6 +16,28 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 def make_app():
+    log_config = {
+        'version': 1,
+        'formatters': {
+            'local': {
+                'format': '%(asctime)s %(message)s',
+            }
+        },
+        'handlers': {
+            'syslog': {
+                'class': 'logging.handlers.SysLogHandler',
+                'facility': 'local6',
+                'address': '/dev/log',
+                'formatter': 'local',
+            },
+        },
+        'root': {
+            'level': 'DEBUG',
+            'handlers': ['syslog']
+        },
+    }
+    logging.config.dictConfig(log_config)
+
     return tornado.web.Application([
         (r"/", MainHandler),
     ])
