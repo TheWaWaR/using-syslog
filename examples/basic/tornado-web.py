@@ -17,7 +17,7 @@ from tornado.options import define, options
 
 class MySysLogHandler(logging.handlers.SysLogHandler):
 
-    defaults = {
+    DEFAULTS = {
         'format': '%(levelname)s - %(message)s',
         'level': 'DEBUG',
         'address': '/dev/log',
@@ -27,9 +27,9 @@ class MySysLogHandler(logging.handlers.SysLogHandler):
 
     def __init__(self, **kwargs):
         Cls = self.__class__
-        kwargs.setdefault('address', Cls.defaults['address'])
-        kwargs.setdefault('facility', Cls.defaults['facility'])
-        ident = kwargs.pop('ident', Cls.defaults['ident'])
+        kwargs.setdefault('address', Cls.DEFAULTS['address'])
+        kwargs.setdefault('facility', Cls.DEFAULTS['facility'])
+        ident = kwargs.pop('ident', Cls.DEFAULTS['ident'])
         super(MySysLogHandler, self).__init__(**kwargs)
         self.ident = ident
 
@@ -50,11 +50,11 @@ class MySysLogHandler(logging.handlers.SysLogHandler):
         """
 
         class_name = '{}.{}'.format(__name__, Cls.__name__)
-        format = format or Cls.defaults['format']
-        level = level or Cls.defaults['level']
-        address = address or Cls.defaults['address']
-        facility = facility or Cls.defaults['facility']
-        ident = ident or Cls.defaults['ident']
+        format = format or Cls.DEFAULTS['format']
+        level = level or Cls.DEFAULTS['level']
+        address = address or Cls.DEFAULTS['address']
+        facility = facility or Cls.DEFAULTS['facility']
+        ident = ident or Cls.DEFAULTS['ident']
 
         log_config = {
             'version': 1,
