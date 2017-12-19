@@ -95,8 +95,8 @@ class MainHandler(tornado.web.RequestHandler):
 def make_app():
     settings = {
         'debug': True,
-        # https://stackoverflow.com/a/32527393/1274372
-        #   Cannot run in multiple processes:
+        # NOTE: https://stackoverflow.com/a/32527393/1274372
+        #   RuntimeError: Cannot run in multiple processes:
         #    IOLoop instance has already been initialized.
         'autoreload': False,
     }
