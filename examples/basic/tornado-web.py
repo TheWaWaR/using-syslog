@@ -96,8 +96,8 @@ def make_app():
     settings = {
         'debug': True,
         # NOTE: https://stackoverflow.com/a/32527393/1274372
-        #   RuntimeError: Cannot run in multiple processes:
-        #    IOLoop instance has already been initialized.
+        #   `autoreload` is incompatible with multi-process mode.
+        #   When autoreload is enabled you must run only one process.
         'autoreload': False,
     }
     return tornado.web.Application([
