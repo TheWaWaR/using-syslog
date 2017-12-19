@@ -36,42 +36,8 @@ sudo cp logrotate-apps.cron /etc/cron.hourly
 
 ``` python
 import logging
-import logging.config
-import logging.handlers
 
-class MySysLogHandler(logging.handlers.SysLogHandler):
-
-    def __init__(self, **kwargs):
-        ident = kwargs.pop('ident', 'python')
-        kwargs.setdefault('facility', 'local6')
-        kwargs.setdefault('address', '/dev/log')
-        super(MySysLogHandler, self).__init__(**kwargs)
-        self.ident = ident
-
-    def format(self, record):
-        msg = super(MySysLogHandler, self).format(record)
-        return u'{}[{}]: {}'.format(self.ident, record.process, msg)
-        
-log_config = {
-    'version': 1,
-    'formatters': {
-        'local': {
-            'format': '%(asctime)s %(message)s',
-        }
-    },
-    'handlers': {
-        'syslog': {
-            'class': '{}.MySysLogHandler'.format(__name__),
-            'formatter': 'local',
-        },
-    },
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['syslog']
-    },
-}
-logging.config.dictConfig(log_config)
-
+MySysLogHandler.config_logging()
 logging.info('Some thing happened!')
 ```
 
@@ -92,7 +58,6 @@ sudo vim /etc/rsyncd.conf
   $imjournalRatelimitBurst 0
 
 sudo systemctl restart rsyslog
-
 ```
 
 ## Start tornado application with 6 processes
