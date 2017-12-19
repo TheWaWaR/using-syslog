@@ -17,10 +17,19 @@ from tornado.options import define, options
 
 class MySysLogHandler(logging.handlers.SysLogHandler):
 
+    defaults = {
+        'format': '%(levelname)s - %(message)s',
+        'level': 'DEBUG',
+        'address': '/dev/log',
+        'facility': 'local6',
+        'ident': 'python',
+    }
+
     def __init__(self, **kwargs):
-        ident = kwargs.pop('ident', 'python')
-        kwargs.setdefault('facility', 'local6')
-        kwargs.setdefault('address', '/dev/log')
+        Cls = self.__class__
+        kwargs.setdefault('address', Cls.defaults['address'])
+        kwargs.setdefault('facility', Cls.defaults['facility'])
+        ident = kwargs.pop('ident', Cls.defaults['ident'])
         super(MySysLogHandler, self).__init__(**kwargs)
         self.ident = ident
 
@@ -28,26 +37,45 @@ class MySysLogHandler(logging.handlers.SysLogHandler):
         msg = super(MySysLogHandler, self).format(record)
         return u'{}[{}]: {}'.format(self.ident, record.process, msg)
 
+    @classmethod
+    def config_logging(Cls,
+                       format=None,
+                       level=None,
+                       address=None,
+                       facility=None,
+                       ident=None):
 
-log_config = {
-    'version': 1,
-    'formatters': {
-        'local': {
-            'format': '[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
+        class_name = '{}.{}'.format(__name__, Cls.__name__)
+        format = format or Cls.defaults['format']
+        level = level or Cls.defaults['level']
+        address = address or Cls.defaults['address']
+        facility = facility or Cls.defaults['facility']
+        ident = ident or Cls.defaults['ident']
+
+        log_config = {
+            'version': 1,
+            'formatters': {
+                'local': {
+                    'format': format,
+                }
+            },
+            'handlers': {
+                'syslog': {
+                    'class': class_name,
+                    'formatter': 'local',
+                    'address': address,
+                    'facility': facility,
+                },
+            },
+            'root': {
+                'level': level,
+                'handlers': ['syslog']
+            },
         }
-    },
-    'handlers': {
-        'syslog': {
-            'class': '{}.MySysLogHandler'.format(__name__),
-            'formatter': 'local',
-        },
-    },
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['syslog']
-    },
-}
-logging.config.dictConfig(log_config)
+        logging.config.dictConfig(log_config)
+
+
+MySysLogHandler.config_logging()
 redis_key = datetime.now().strftime('tornado:%Y-%m-%d_%H:%M:%S')
 redis_cli = redis.StrictRedis()
 
