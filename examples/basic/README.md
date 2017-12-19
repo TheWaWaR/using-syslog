@@ -6,29 +6,33 @@
 sudo vim /etc/systemd/journald.conf
 
   RateLimitInterval=30s
-  RateLimitBurst=50000
+  RateLimitBurst=60000
   
 sudo systemctl restart systemd-journald
 ```
 
-## Config rsyslog
+## Config rsyslog (see: `rsyslog-local6-tornado-web.conf`)
 
 ``` bash
+sudo mkdir /var/log/apps
 sudo vim /etc/rsyncd.conf
 
-  $ModLoad imjournal
   $imjournalRatelimitInterval 30
-  $imjournalRatelimitBurst 50000
+  $imjournalRatelimitBurst 60000
 
-sudo cp rsyslog-local6.conf /etc/rsyslog.d/00-local6-tornado.conf
-
-  if $syslogfacility-text == 'local6' and $syslogtag startswith 'python' then /var/log/tornado-app.log
-  & ~
-  
+sudo cp rsyslog-local6-tornado-web.conf /etc/rsyslog.d/00-local6-tornado-web.conf
 sudo systemctl restart rsyslog
 ```
 
-## Config python logging module (see: `tornado-app.py`)
+## Config logrotate (see: `logrotate-tornado-web.conf`)
+
+``` bash
+sudo cp logrotate-apps.conf /etc
+# [Ref]: https://stackoverflow.com/a/23728801/1274372
+sudo cp logrotate-apps.cron /etc/cron.hourly
+```
+
+## Config python logging module (see: `tornado-web.py`)
 
 ``` python
 import logging

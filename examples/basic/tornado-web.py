@@ -9,6 +9,7 @@ import logging.handlers
 import tornado.ioloop
 import tornado.web
 import tornado.options
+from tornado.options import define, options
 
 
 class MySysLogHandler(logging.handlers.SysLogHandler):
@@ -60,7 +61,8 @@ def make_app():
 
 
 if __name__ == "__main__":
-    app = make_app()
-    app.listen(8877)
+    define("port", type=int, default=8877, help="The port listen on")
     tornado.options.parse_command_line()
+    app = make_app()
+    app.listen(options.port)
     tornado.ioloop.IOLoop.current().start()
