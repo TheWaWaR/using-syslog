@@ -21,6 +21,10 @@ sudo vim /etc/rsyncd.conf
   $imjournalRatelimitBurst 50000
 
 sudo cp rsyslog-local6.conf /etc/rsyslog.d/00-local6-tornado.conf
+
+  if $syslogfacility-text == 'local6' and $syslogtag startswith 'python' then /var/log/tornado-app.log
+  & ~
+  
 sudo systemctl restart rsyslog
 ```
 
@@ -29,7 +33,21 @@ sudo systemctl restart rsyslog
 ``` python
 import logging
 import logging.config
+import logging.handlers
 
+class MySysLogHandler(logging.handlers.SysLogHandler):
+
+    def __init__(self, **kwargs):
+        ident = kwargs.pop('ident', 'python')
+        kwargs.setdefault('facility', 'local6')
+        kwargs.setdefault('address', '/dev/log')
+        super(MySysLogHandler, self).__init__(**kwargs)
+        self.ident = ident
+
+    def format(self, record):
+        msg = super(MySysLogHandler, self).format(record)
+        return u'{}[{}]: {}'.format(self.ident, record.process, msg)
+        
 log_config = {
     'version': 1,
     'formatters': {
@@ -39,9 +57,7 @@ log_config = {
     },
     'handlers': {
         'syslog': {
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': 'local6',
-            'address': '/dev/log',
+            'class': '{}.MySysLogHandler'.format(__name__),
             'formatter': 'local',
         },
     },

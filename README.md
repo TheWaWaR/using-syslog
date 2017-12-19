@@ -1,6 +1,15 @@
 # using-syslog
 How to use syslog. application examples &amp; rsyslog configurations.
 
+# Goals
+* [x] Multiple process support, high performace (powered by rsyslog)
+* [x] Seprate log file by application name
+* [x] Log with python std logging module (No need to change current code)
+* [ ] Log rotate by file size (50MB)
+  - previous file: app-logfile.log.0
+  - more archives: app-logfile.log.1.gz, app-logfile.log.2.gz, app-logfile.log.3.gz
+  - remove older log file
+
 # References
 * How to configure logging to syslog in Python?
   - https://stackoverflow.com/a/3969772/1274372
