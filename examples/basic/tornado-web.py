@@ -44,6 +44,10 @@ class MySysLogHandler(logging.handlers.SysLogHandler):
                        address=None,
                        facility=None,
                        ident=None):
+        """
+        [Reference]:
+          https://docs.python.org/2/howto/logging-cookbook.html#configuring-filters-with-dictconfig
+        """
 
         class_name = '{}.{}'.format(__name__, Cls.__name__)
         format = format or Cls.defaults['format']
@@ -65,6 +69,7 @@ class MySysLogHandler(logging.handlers.SysLogHandler):
                     'formatter': 'local',
                     'address': address,
                     'facility': facility,
+                    'ident': ident,
                 },
             },
             'root': {
@@ -90,6 +95,9 @@ class MainHandler(tornado.web.RequestHandler):
 def make_app():
     settings = {
         'debug': True,
+        # https://stackoverflow.com/a/32527393/1274372
+        #   Cannot run in multiple processes:
+        #    IOLoop instance has already been initialized.
         'autoreload': False,
     }
     return tornado.web.Application([
