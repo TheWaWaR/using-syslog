@@ -4,8 +4,6 @@
 import sys
 from datetime import datetime
 import logging
-import logging.config
-import logging.handlers
 
 import redis
 import tornado.ioloop
@@ -14,73 +12,10 @@ import tornado.options
 import tornado.httpserver
 from tornado.options import define, options
 
-
-class MySysLogHandler(logging.handlers.SysLogHandler):
-
-    DEFAULTS = {
-        'format': '%(levelname)s - %(message)s',
-        'level': 'DEBUG',
-        'address': '/dev/log',
-        'facility': 'local6',
-        'ident': 'python',
-    }
-
-    def __init__(self, **kwargs):
-        Cls = self.__class__
-        kwargs.setdefault('address', Cls.DEFAULTS['address'])
-        kwargs.setdefault('facility', Cls.DEFAULTS['facility'])
-        ident = kwargs.pop('ident', Cls.DEFAULTS['ident'])
-        super(MySysLogHandler, self).__init__(**kwargs)
-        self.ident = ident
-
-    def format(self, record):
-        msg = super(MySysLogHandler, self).format(record)
-        return u'{}[{}]: {}'.format(self.ident, record.process, msg)
-
-    @classmethod
-    def config_logging(Cls,
-                       format=None,
-                       level=None,
-                       address=None,
-                       facility=None,
-                       ident=None):
-        """
-        [Reference]:
-          https://docs.python.org/2/howto/logging-cookbook.html#configuring-filters-with-dictconfig
-        """
-
-        class_name = '{}.{}'.format(__name__, Cls.__name__)
-        format = format or Cls.DEFAULTS['format']
-        level = level or Cls.DEFAULTS['level']
-        address = address or Cls.DEFAULTS['address']
-        facility = facility or Cls.DEFAULTS['facility']
-        ident = ident or Cls.DEFAULTS['ident']
-
-        log_config = {
-            'version': 1,
-            'formatters': {
-                'local': {
-                    'format': format,
-                }
-            },
-            'handlers': {
-                'syslog': {
-                    'class': class_name,
-                    'formatter': 'local',
-                    'address': address,
-                    'facility': facility,
-                    'ident': ident,
-                },
-            },
-            'root': {
-                'level': level,
-                'handlers': ['syslog']
-            },
-        }
-        logging.config.dictConfig(log_config)
+from simple_syslog_handler import SimpleSysLogHandler
 
 
-MySysLogHandler.config_logging()
+SimpleSysLogHandler.config_logging()
 redis_key = datetime.now().strftime('tornado:%Y-%m-%d_%H:%M:%S')
 redis_cli = redis.StrictRedis()
 
